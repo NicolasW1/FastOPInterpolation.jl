@@ -14,3 +14,4 @@ authors:
   - given-names: Nicolas
     family-names: Wink
     affiliation: TU Darmstadt
+repository-code: 'https://github.com/NicolasW1/FastOPInterpolation.jl'
