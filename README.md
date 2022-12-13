@@ -15,6 +15,14 @@ You can specify the set of nodes yourself or use the predefined ones, their maxi
 
 A complete working example can be found [the example folder](examples/).
 
-Unfortunatley, this package is currently not compatible with shared-memory parallelization or autodiff due to the extensive usage of buffers to maximize performance for repeated evaluations. We are aware of the issue and currently working on a solution.
+For a given set of orthogonal polynomials (with their recurrence relation) it is easy to extend the code to other geometries. Please do not hesitate to get in contact with us (via mail or github issue) to request further geometries or features. You are of course also always invited to implement it yourself and create a pull request.
+
+Current limitations include:
+ - no shared-memory parallelization (due to buffers)
+ - autodiff (same reason as shared-memory parallelization)
+ - only scalar functions (matching type of coordinates and return type of the function to be interpolated)
+
+All three limitations are partially related to the heavy use internal buffers to maximize performance for repeated evaluations.
+We are working on a simulation to circument these limitations.
 
 The package was developed by Nicolas Wink and Eduardo Grossi. If you should use it in your scientific work please cite this repository (there is a button on the GitHub page).
