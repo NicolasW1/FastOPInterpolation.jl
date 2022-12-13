@@ -1,10 +1,15 @@
 module FastOPInterpolation
 
+export InterpolationElement
+export dim, dof, order, nodes, setVandermonde, AbstractRecurrenceBuffer, AbstractBasisGeometry
+export updateInterpolation!, generateTensorNodes!, generateTensorNodes
+
+export DiskRecurrenceParameter, DiskGeometry, DiskElement
+
+
 using StaticArrays
 using LinearAlgebra
 using Kronecker
-
-export updateInterpolation!
 
 include("auxiliary.jl")
 

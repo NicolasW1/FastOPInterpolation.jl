@@ -26,9 +26,9 @@ function TriangleGeometry(vertex_1::Tuple{T,T}, vertex_2::Tuple{T,T}, vertex_3::
     TriangleGeometry(vertex_1, vertex_2, vertex_3, prefactor)
 end
 
-@inbounds @inline function mapToReference!(x₀::AbstractVector{T}, x::AbstractVector{T}, tri::TriangleGeometry{T}) where {T}
-    x₀[1] = tri.prefactor * ((tri.vertex_1[2] - tri.vertex_3[2]) * x[1] + (tri.vertex_3[1] - tri.vertex_1[1]) * x[2] + tri.vertex_1[1]*tri.vertex_3[2] - tri.vertex_1[2]*tri.vertex_3[1])
-    x₀[2] = tri.prefactor * ((tri.vertex_2[2] - tri.vertex_1[2]) * x[1] + (tri.vertex_1[1] - tri.vertex_2[1]) * x[2] + tri.vertex_1[2]*tri.vertex_2[1] - tri.vertex_1[1]*tri.vertex_2[2])
+@inline function mapToReference!(x₀::AbstractVector{T}, x::AbstractVector{T}, tri::TriangleGeometry{T}) where {T}
+    @inbounds x₀[1] = tri.prefactor * ((tri.vertex_1[2] - tri.vertex_3[2]) * x[1] + (tri.vertex_3[1] - tri.vertex_1[1]) * x[2] + tri.vertex_1[1]*tri.vertex_3[2] - tri.vertex_1[2]*tri.vertex_3[1])
+    @inbounds x₀[2] = tri.prefactor * ((tri.vertex_2[2] - tri.vertex_1[2]) * x[1] + (tri.vertex_1[1] - tri.vertex_2[1]) * x[2] + tri.vertex_1[2]*tri.vertex_2[1] - tri.vertex_1[1]*tri.vertex_2[2])
 
     return nothing
 end
@@ -49,14 +49,14 @@ dim(::Type{TriangleElement{T, N}}) where {T, N} = 2
 dof(::Type{TriangleElement{T, N}}) where {T, N} = ((N+1) * (N+2)) ÷ 2
 
 
-@inbounds function nodes(triangle::TriangleElement{T,N}) where {T,N}
+function nodes(triangle::TriangleElement{T,N}) where {T,N}
     n = order(triangle)
     ref_nodes = getRefTriangleNodes_Barycentric(T, n)
     element_nodes = Matrix{T}(undef, dim(triangle), dof(triangle))
 
     for i=1:dof(triangle)
         for j=1:dim(triangle)
-            element_nodes[j,i] = ref_nodes[i,1] * triangle.geometry.vertex_1[j] + ref_nodes[i,2] * triangle.geometry.vertex_2[j] + ref_nodes[i,3] * triangle.geometry.vertex_3[j]
+            @inbounds element_nodes[j,i] = ref_nodes[i,1] * triangle.geometry.vertex_1[j] + ref_nodes[i,2] * triangle.geometry.vertex_2[j] + ref_nodes[i,3] * triangle.geometry.vertex_3[j]
         end
     end
 
@@ -97,10 +97,10 @@ end
     return nothing
 end
 
-@inline @inbounds function getBasisElement!(buffer::TriangleRecurrenceBuffer{T, N}, params::TriangleJacobiParameter{T}) where {T,N}
+@inline function getBasisElement!(buffer::TriangleRecurrenceBuffer{T, N}, params::TriangleJacobiParameter{T}) where {T,N}
     #j=k
     #i=n-k
-    x₀::T, y₀::T = buffer.x[1], buffer.x[2]
+    @inbounds x₀::T, y₀::T = buffer.x[1], buffer.x[2]
     xtilde::T = one(T) - 2 * x₀
     ytilde::T = 1-x₀ ≈ zero(T) ? zero(T) : 2 * (y₀/(1-x₀)) - one(T)
 

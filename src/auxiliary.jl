@@ -1,6 +1,7 @@
 
 """
     generateRanges(dimTuple)
+
 Returns a Tuple of ranges which span `1:sum(dimTuple)` with the property `length(res[i]) == dimTuple[i]`.
 Used to associate dimensions with rows in matrices.
 """

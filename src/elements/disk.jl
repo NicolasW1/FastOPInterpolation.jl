@@ -1,8 +1,5 @@
 include("nodes/disk_nodes.jl")
 
-export DiskRecurrenceParameter, DiskGeometry, DiskElement
-export mapToReference!, nodes
-
 # Recurrence Parameter
 struct DiskRecurrenceParameter{T}
     a::T
@@ -15,15 +12,15 @@ struct DiskGeometry{T}
     radius::T
 end
 
-@inbounds @inline function mapToReference!(x₀::AbstractVector{T}, x::AbstractVector{T}, disk::DiskGeometry{T})::Nothing where {T}
-    x₀[1] = (x[1] - disk.center[1]) / disk.radius
-    x₀[2] = (x[2] - disk.center[2]) / disk.radius
+@inline function mapToReference!(x₀::AbstractVector{T}, x::AbstractVector{T}, disk::DiskGeometry{T})::Nothing where {T}
+    @inbounds x₀[1] = (x[1] - disk.center[1]) / disk.radius
+    @inbounds x₀[2] = (x[2] - disk.center[2]) / disk.radius
 
     return nothing
 end
-@inbounds @inline function mapFromReference!(x::AbstractVector{T}, x₀::AbstractVector{T}, disk::DiskGeometry{T})::Nothing where {T}
-    x[1] = (disk.radius * x₀[1]) + disk.center[1]
-    x[2] = (disk.radius * x₀[2]) + disk.center[2]
+@inline function mapFromReference!(x::AbstractVector{T}, x₀::AbstractVector{T}, disk::DiskGeometry{T})::Nothing where {T}
+    @inbounds x[1] = (disk.radius * x₀[1]) + disk.center[1]
+    @inbounds x[2] = (disk.radius * x₀[2]) + disk.center[2]
 
     return nothing
 end
@@ -44,13 +41,13 @@ dim(::Type{DiskElement{T, N}}) where {T, N} = 2
 dof(::Type{DiskElement{T, N}}) where {T, N} = ((N+1) * (N+2)) ÷ 2
 
 
-@inbounds function nodes(disk::DiskElement{T,N}) where {T,N}
+function nodes(disk::DiskElement{T,N}) where {T,N}
     n = order(disk)
     ref_nodes = getRefDiskNodes(T, n)
     element_nodes = Matrix{T}(undef, dim(disk), dof(disk))
 
     for i=1:dof(disk)
-        mapFromReference!((@view element_nodes[:,i]), (@view ref_nodes[i,:]), disk.geometry)
+        @inbounds mapFromReference!((@view element_nodes[:,i]), (@view ref_nodes[i,:]), disk.geometry)
     end
 
     element_nodes
@@ -76,7 +73,7 @@ function RecurrenceBuffer(::Type{DiskElement{T,N}}) where {T,N}
     DiskRecurrenceBuffer{T,N}(zeros(MVector{2,T}), zero(type_int), zero(type_int), zero(T), zero(T), zero(T), zero(T), zero(T), zero(T))
 end
 
-@inline function resetBuffer!(buffer::DiskRecurrenceBuffer{T,N})::Nothing where {T,N}
+function resetBuffer!(buffer::DiskRecurrenceBuffer{T,N})::Nothing where {T,N}
     buffer.i = N + 1
     buffer.j = -one(N)
 
@@ -90,10 +87,10 @@ end
     return nothing
 end
 
-@inline @inbounds function getBasisElement!(buffer::DiskRecurrenceBuffer{T, N}, params::DiskRecurrenceParameter{T}) where {T,N}
+@inline function getBasisElement!(buffer::DiskRecurrenceBuffer{T, N}, params::DiskRecurrenceParameter{T}) where {T,N}
     #j=k
     #i=n-k
-    x₀::T, y₀::T = buffer.x[1], buffer.x[2]
+    @inbounds x₀::T, y₀::T = buffer.x[1], buffer.x[2]
     ytilde::T = 1-abs(x₀) ≈ zero(T) ? zero(T) : (1-x₀^2)^(-one(T)/2) * y₀
 
     @inline function update_i()

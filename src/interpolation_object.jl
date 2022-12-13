@@ -1,8 +1,3 @@
-export InterpolationElement
-export dim, dof
-export nodes
-export setVandermonde
-
 mutable struct InterpolationElement{T, D, X, Y}
     modes::Array{T, D}
     invV::NTuple{D, Matrix{T}}
@@ -39,12 +34,23 @@ function singleVandermonde(buffer::AbstractRecurrenceBuffer, element::AbstractBa
     inv(V)
 end
 
+"""
+    setVandermonde(intElement::InterpolationElement{T,D,X,Y}, nodes::NTuple{D, AbstractMatrix{T}})
+
+Update the Vandermonde matrix of an interpolation element for set of nodes.
+"""
 function setVandermonde(intElement::InterpolationElement{T,D,X,Y}, nodes::NTuple{D, AbstractMatrix{T}})::Nothing where {T,D,X,Y}
     intElement.invV = ntuple(i -> singleVandermonde(intElement.recurrenceBuffers[i], intElement.elements[i], nodes[i]) , D)
 
     return nothing
 end
 
+"""
+    InterpolationElement(elements::X, constructNodes::Bool = true)
+
+Initalize an interpolation element from a collection of tuple of simple elements.
+The optional second argument `constructNodes` determines whether or not predefined nodes should be used.
+"""
 function InterpolationElement(elements::X, constructNodes::Bool = true) where {X}
     T = eltype(typeof(elements[1]))
     D = length(elements)
