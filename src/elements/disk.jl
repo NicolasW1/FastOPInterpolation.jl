@@ -94,7 +94,7 @@ end
     #j=k
     #i=n-k
     x₀::T, y₀::T = buffer.x[1], buffer.x[2]
-    ytilde::T = 1-x₀ ≈ zero(T) ? zero(T) : (1-x₀^2)^(-one(T)/2) * y₀
+    ytilde::T = 1-abs(x₀) ≈ zero(T) ? zero(T) : (1-x₀^2)^(-one(T)/2) * y₀
 
     @inline function update_i()
         buffer.Pᵢ = jacobiRecurrenceRelation(buffer.Pᵢ₋₁, buffer.Pᵢ₋₂, buffer.i, params.a + buffer.j + one(T)/2, params.a + buffer.j + one(T)/2, x₀)
