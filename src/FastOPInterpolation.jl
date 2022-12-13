@@ -4,6 +4,8 @@ using StaticArrays
 using LinearAlgebra
 using Kronecker
 
+export updateInterpolation!
+
 include("auxiliary.jl")
 
 include("general_nodes.jl")

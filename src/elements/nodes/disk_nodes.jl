@@ -5582,6 +5582,6 @@ elseif order == 20
         -6.41254172440477665517732930311467e-01 6.79234129831994271064843360363739e-02
         ])
 else
-    throw("Disk nodes with order $order not implemented (yet)!")
+    throw(ArgumentError("Disk nodes with order $order not implemented (yet)!"))
 end
 end

@@ -22,7 +22,7 @@ end
     end
 end
 
-@fastmath @inbounds function (intElement::InterpolationElement{T,D,X,Y})(x) where {T,D,X,Y}
+@inbounds function (intElement::InterpolationElement{T,D,X,Y})(x) where {T,D,X,Y}
     result = zero(T)
 
     broadcast(((a,b,c)->initBuffer!(a,b,c,x)), intElement.recurrenceBuffers, intElement.elements, intElement.arg_ranges)

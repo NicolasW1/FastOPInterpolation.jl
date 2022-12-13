@@ -15,13 +15,13 @@ struct DiskGeometry{T}
     radius::T
 end
 
-@fastmath @inbounds @inline function mapToReference!(x₀::AbstractVector{T}, x::AbstractVector{T}, disk::DiskGeometry{T})::Nothing where {T}
+@inbounds @inline function mapToReference!(x₀::AbstractVector{T}, x::AbstractVector{T}, disk::DiskGeometry{T})::Nothing where {T}
     x₀[1] = (x[1] - disk.center[1]) / disk.radius
     x₀[2] = (x[2] - disk.center[2]) / disk.radius
 
     return nothing
 end
-@fastmath @inbounds @inline function mapFromReference!(x::AbstractVector{T}, x₀::AbstractVector{T}, disk::DiskGeometry{T})::Nothing where {T}
+@inbounds @inline function mapFromReference!(x::AbstractVector{T}, x₀::AbstractVector{T}, disk::DiskGeometry{T})::Nothing where {T}
     x[1] = (disk.radius * x₀[1]) + disk.center[1]
     x[2] = (disk.radius * x₀[2]) + disk.center[2]
 
@@ -90,7 +90,7 @@ end
     return nothing
 end
 
-@inline @inbounds @fastmath function getBasisElement!(buffer::DiskRecurrenceBuffer{T, N}, params::DiskRecurrenceParameter{T}) where {T,N}
+@inline @inbounds function getBasisElement!(buffer::DiskRecurrenceBuffer{T, N}, params::DiskRecurrenceParameter{T}) where {T,N}
     #j=k
     #i=n-k
     x₀::T, y₀::T = buffer.x[1], buffer.x[2]

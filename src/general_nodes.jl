@@ -32,7 +32,7 @@ generateTensorNodes!(res::AbstractMatrix{T}, tuple_nodes::AbstractMatrix{T}...) 
 #   generateTensorNodes(tuple_nodes)
 # Allocating (of the result) version of `generateTensorNodes!`
 # """
-function generateTensorNodes(tuple_nodes::NTuple{D, AbstractMatrix{T}}) where {D, T}
+@inbounds function generateTensorNodes(tuple_nodes::NTuple{D, AbstractMatrix{T}}) where {D, T}
     space_dims::NTuple{D, Int} = map(x->size(x)[1], tuple_nodes)
     num_points::NTuple{D, Int} = map(x->size(x)[2], tuple_nodes)
 

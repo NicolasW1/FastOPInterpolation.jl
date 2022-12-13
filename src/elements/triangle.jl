@@ -26,7 +26,7 @@ function TriangleGeometry(vertex_1::Tuple{T,T}, vertex_2::Tuple{T,T}, vertex_3::
     TriangleGeometry(vertex_1, vertex_2, vertex_3, prefactor)
 end
 
-@fastmath @inbounds @inline function mapToReference!(x₀::AbstractVector{T}, x::AbstractVector{T}, tri::TriangleGeometry{T}) where {T}
+@inbounds @inline function mapToReference!(x₀::AbstractVector{T}, x::AbstractVector{T}, tri::TriangleGeometry{T}) where {T}
     x₀[1] = tri.prefactor * ((tri.vertex_1[2] - tri.vertex_3[2]) * x[1] + (tri.vertex_3[1] - tri.vertex_1[1]) * x[2] + tri.vertex_1[1]*tri.vertex_3[2] - tri.vertex_1[2]*tri.vertex_3[1])
     x₀[2] = tri.prefactor * ((tri.vertex_2[2] - tri.vertex_1[2]) * x[1] + (tri.vertex_1[1] - tri.vertex_2[1]) * x[2] + tri.vertex_1[2]*tri.vertex_2[1] - tri.vertex_1[1]*tri.vertex_2[2])
 
@@ -97,7 +97,7 @@ end
     return nothing
 end
 
-@inline @inbounds @fastmath function getBasisElement!(buffer::TriangleRecurrenceBuffer{T, N}, params::TriangleJacobiParameter{T}) where {T,N}
+@inline @inbounds function getBasisElement!(buffer::TriangleRecurrenceBuffer{T, N}, params::TriangleJacobiParameter{T}) where {T,N}
     #j=k
     #i=n-k
     x₀::T, y₀::T = buffer.x[1], buffer.x[2]

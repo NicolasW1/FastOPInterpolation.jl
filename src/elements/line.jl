@@ -22,12 +22,12 @@ end
 #   mapToReference!(x₀, x, line)
 #   Maps the point `x` (as vector) form the geometric object `line` to the point `x₀` (as vector) on the reference element `[-1,1]`
 # """
-@fastmath @inbounds @inline function mapToReference!(x₀::AbstractVector{T}, x::AbstractVector{T}, line::LineGeometry{T})::Nothing where {T}
+@inbounds @inline function mapToReference!(x₀::AbstractVector{T}, x::AbstractVector{T}, line::LineGeometry{T})::Nothing where {T}
     x₀[1] = (2 * x[1] - (line.vertex_1[1] + line.vertex_2[1])) / (line.vertex_2[1] - line.vertex_1[1])
 
     return nothing
 end
-@fastmath @inbounds @inline function mapFromReference!(x::AbstractVector{T}, x₀::AbstractVector{T}, line::LineGeometry{T})::Nothing where {T}
+@inbounds @inline function mapFromReference!(x::AbstractVector{T}, x₀::AbstractVector{T}, line::LineGeometry{T})::Nothing where {T}
     x[1] = line.vertex_1[1] + (x₀[1] + 1) / 2 * (line.vertex_2[1] - line.vertex_1[1])
 
     return nothing
@@ -92,7 +92,7 @@ end
     return nothing
 end
 
-@inline @inbounds @fastmath function getBasisElement!(buffer::LineRecurrenceBuffer{T, I}, params::LineJacobiParameter{T}) where {T,I}
+@inline @inbounds function getBasisElement!(buffer::LineRecurrenceBuffer{T, I}, params::LineJacobiParameter{T}) where {T,I}
     buffer.i += 1
 
     buffer.Pᵢ = jacobiRecurrenceRelation(buffer.Pᵢ₋₁, buffer.Pᵢ₋₂, buffer.i, params.α, params.β, buffer.x[1])
