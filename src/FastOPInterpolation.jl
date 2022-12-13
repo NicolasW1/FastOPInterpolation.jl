@@ -4,7 +4,9 @@ export InterpolationElement
 export dim, dof, order, nodes, setVandermonde, AbstractRecurrenceBuffer, AbstractBasisGeometry
 export updateInterpolation!, generateTensorNodes!, generateTensorNodes
 
+export LineJacobiParameter, LineGeometry, LineElement
 export DiskRecurrenceParameter, DiskGeometry, DiskElement
+export TriangleJacobiParameter, TriangleGeometry, TriangleElement
 
 
 using StaticArrays

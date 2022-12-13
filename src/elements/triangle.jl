@@ -1,8 +1,5 @@
 include("nodes/triangle_nodes.jl")
 
-export TriangleJacobiParameter, TriangleGeometry, TriangleElement
-export mapToReference!, nodes
-
 # Recurrence Parameter
 struct TriangleJacobiParameter{T}
     a::T

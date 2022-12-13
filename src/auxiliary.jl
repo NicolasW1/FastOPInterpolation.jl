@@ -1,4 +1,3 @@
-
 """
     generateRanges(dimTuple)
 

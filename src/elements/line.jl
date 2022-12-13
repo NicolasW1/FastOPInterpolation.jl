@@ -1,6 +1,3 @@
-export LineJacobiParameter, LineGeometry, LineElement
-export mapToReference!, mapFromReference!, nodes
-
 # Recurrence Parameter
 struct LineJacobiParameter{T}
     α::T
