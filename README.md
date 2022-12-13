@@ -25,4 +25,8 @@ Current limitations include:
 All three limitations are partially related to the heavy use internal buffers to maximize performance for repeated evaluations.
 We are working on a simulation to circument these limitations.
 
+Similar packages (interpolation with orthogonal polynomials) with a different focus:
+ - [FastChebInterp](https://github.com/stevengj/FastChebInterp.jl)
+ - [ClassicalOrthogonalPolynomials](https://github.com/JuliaApproximation/ClassicalOrthogonalPolynomials.jl)
+
 The package was developed by Nicolas Wink and Eduardo Grossi. If you should use it in your scientific work please cite this repository (there is a button on the GitHub page).
