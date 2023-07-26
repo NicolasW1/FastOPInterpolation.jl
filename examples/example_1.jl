@@ -4,9 +4,9 @@ push!(LOAD_PATH, joinpath(parentDirectory(@__DIR__,2)));
 using FastOPInterpolation
 
 # the syntax is Element(order, geometry, JacobiParameter)
-line1 = LineElement(51, LineGeometry(-1.5, 3.5), LineJacobiParameter(1.2, 3.5))
+line1 = LineElement(51, LineGeometry(-1.5,3.5), LineJacobiParameter(1.2,3.5))
 triangle1 = TriangleElement(18, TriangleGeometry((0.0,0.0),(1.0,0.0), (0.0,1.0)), TriangleJacobiParameter(0.,0.,0.))
-disk1 = DiskElement(14, DiskGeometry((0.0, 0.0), 1.0), DiskRecurrenceParameter(0.))
+disk1 = DiskElement(14, DiskGeometry((0.0,0.0), 1.0), DiskRecurrenceParameter(0.))
 
 # domain = line ⊗ triangle
 intP1, t_nodes1 = InterpolationElement((line1, triangle1));
