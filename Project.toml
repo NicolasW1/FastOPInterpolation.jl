@@ -1,7 +1,7 @@
 name = "FastOPInterpolation"
 uuid = "7decf2fc-1b41-4df3-8d24-d8c3407cdb84"
 authors = ["Nicolas Wink <nicolas.wink@tu-darmstadt.de>", "Eduardo Grossi"]
-version = "0.1.0"
+version = "0.1.2"
 
 [deps]
 Kronecker = "2c470bb0-bcc8-11e8-3dad-c9649493f05e"
