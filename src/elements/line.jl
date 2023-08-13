@@ -36,7 +36,7 @@ end
 
 Basic struct holding orthogonal polynomials on the line.
 """
-mutable struct LineElement{T,N} <: AbstractBasisGeometry{T,N}
+struct LineElement{T,N} <: AbstractBasisGeometry{T,N}
     geometry::LineGeometry{T}
     params::LineJacobiParameter{T}
 end
@@ -99,4 +99,29 @@ end
     buffer.Pᵢ₋₁ = buffer.Pᵢ
 
     return buffer.Pᵢ
+end
+
+
+@inline function recursive_evaluate(line::LineElement{T,N},
+    coeff_i::A,
+    x::S
+    ;
+    state= ( zero(promote_type(S,T,A)) ,
+    0,
+    zero(promote_type(S,T,A)) ,
+    zero( promote_type(S,T,A) )  
+    ) 
+    )    where {S<:Number,T,N,A<:Number}
+    
+    
+    result=state[1]
+    order=state[2] 
+    
+    (result,order, Pᵢ₋₁ ,Pᵢ₋₂) =state 
+    
+    Pᵢ = jacobiRecurrenceRelation(Pᵢ₋₁, Pᵢ₋₂, order, line.params.α, line.params.β, x)
+    result = muladd( Pᵢ,coeff_i,result)
+ 
+
+    return ( result , order+1 ,Pᵢ,Pᵢ₋₁ )
 end

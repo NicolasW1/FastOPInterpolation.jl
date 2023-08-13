@@ -124,3 +124,67 @@ end
 
     return buffer.Pᵢ * buffer.Pⱼ * (1-x₀^2)^(buffer.j / 2)
 end
+
+
+
+@inline function recursive_evaluate(disk::DiskElement{T,N},
+    coeff_i::A,
+    x::Tuple{S,S}
+    ;
+    state= 
+    ( zero(promote_type(S,T,A)) ,
+    0, N + 1, -1 , 
+    zero(promote_type(S,T,A)) ,
+    zero( promote_type(S,T,A) ),
+    zero(promote_type(S,T,A)) ,
+    zero( promote_type(S,T,A) ) 
+    ) 
+    )    where {S<:Number,T,N,A<:Number}
+    
+    x₀, y₀ = x
+    ytilde = 1-abs(x₀) ≈ zero(T) ? zero(T) : (1-x₀^2)^(-one(T)/2) * y₀
+    
+    result=state[1]
+    order=state[2]
+    
+    (result,order,i,j, Pᵢ₋₁ ,Pᵢ₋₂,Pⱼ₋₁,Pⱼ₋₂) =state 
+
+    if i + j == N
+        j += 1
+        i = zero(N)
+
+        Pᵢ₋₁ = zero(T)
+        Pᵢ₋₂ = zero(T)
+
+        Pᵢ = jacobiRecurrenceRelation(Pᵢ₋₁, Pᵢ₋₂, i, a + j + one(T)/2, disk.params.a + disk.buffer.j + one(T)/2, x₀)
+        Pᵢ₋₂ = Pᵢ₋₁
+        Pᵢ₋₁ = Pᵢ
+
+        Pⱼ = jacobiRecurrenceRelation(Pⱼ₋₁, Pⱼ₋₂, j, disk.params.a, disk.params.a, ytilde)
+        Pⱼ₋₂ = Pⱼ₋₁
+        Pⱼ₋₁ = Pⱼ
+
+        totelm=Pᵢ * Pⱼ * (1-x₀^2)^(j / 2)
+        result = muladd( totelm,coeff_i,result)
+
+        return (result,order+1,i,j, Pᵢ₋₁ ,Pᵢ₋₂,Pⱼ₋₁,Pⱼ₋₂)
+
+    else
+        i += 1
+
+        Pᵢ = jacobiRecurrenceRelation(Pᵢ₋₁, Pᵢ₋₂, i, a + j + one(T)/2, disk.params.a + disk.buffer.j + one(T)/2, x₀)
+        Pᵢ₋₂ = Pᵢ₋₁
+        Pᵢ₋₁ = Pᵢ
+        
+        Pⱼ= Pⱼ₋₁
+
+        totelm=Pᵢ * Pⱼ * (1-x₀^2)^(j / 2)
+        result = muladd( totelm,coeff_i,result)
+
+        return (result,order+1,i,j, Pᵢ₋₁ ,Pᵢ₋₂,Pⱼ₋₁,Pⱼ₋₂)
+
+
+    end
+
+
+end

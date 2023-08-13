@@ -19,12 +19,13 @@ Classical three terms recurrence relation for Jacobi-Polynomials defined on ``(-
 Requires the two pervious terms `Pₙ₋₁`, `Pₙ₋₂`, the order `n`, the parameters `α>-1`, `β>-1` and the location `x` as input.
 The value of the previous terms is irrelevant for `n=0` and `n=1`.
 """
-@fastmath @inline function jacobiRecurrenceRelation(Pₙ₋₁::T, Pₙ₋₂::T, n::Integer, α::T, β::T, x::T)::T where {T}
+@fastmath @inline function jacobiRecurrenceRelation(Pₙ₋₁::A, Pₙ₋₂::B, n::Integer, α::C, β::D, x::E) where {A,B,C,D,E} 
+    type=promote_type(A,B,C,D,E)
     if n==0
-        one(T)
+        one(type)
     elseif n==1
-        (α - β + x * (2 + α + β))/2
+        (α - β + x * (2 + α + β))/2*one(type)
     else
-        1/(2*n*(n + α + β)*(2*n + α + β - 2)) * ((2*n + α + β - 1) * ((2*n + α + β) * (2*n + α + β - 2) * x + α^2 - β^2) * Pₙ₋₁ - (2*(n + α - 1)*(n + β - 1)*(2*n + α + β)) * Pₙ₋₂)
+        one(type)/(2*n*(n + α + β)*(2*n + α + β - 2)) * ((2*n + α + β - 1) * ((2*n + α + β) * (2*n + α + β - 2) * x + α^2 - β^2) * Pₙ₋₁ - (2*(n + α - 1)*(n + β - 1)*(2*n + α + β)) * Pₙ₋₂)
     end
 end

@@ -132,3 +132,67 @@ end
 
     return buffer.Pᵢ * buffer.Pⱼ * (1-x₀)^buffer.j
 end
+
+
+@inline function recursive_evaluate(triangle::TriangleElement{T,N},
+    coeff_i::A,
+    x::Tuple{S,S}
+    ;
+    state= 
+    ( zero(promote_type(S,T,A)) ,
+    0, N + 1, -1 , 
+    zero(promote_type(S,T,A)) ,
+    zero( promote_type(S,T,A) ),
+    zero(promote_type(S,T,A)) ,
+    zero( promote_type(S,T,A) ) 
+    ) 
+    )    where {S<:Number,T,N,A<:Number}
+    
+    x₀, y₀ = x
+    xtilde = one(S) - 2 * x₀
+    ytilde = 1-x₀ ≈ zero(S) ? zero(S) : 2 * (y₀/(1-x₀)) - one(S)
+    
+    result=state[1]
+    order=state[2]
+    
+    (result,order,i,j, Pᵢ₋₁ ,Pᵢ₋₂,Pⱼ₋₁,Pⱼ₋₂) =state 
+
+    if i + j == N
+        j += 1
+        i = zero(N)
+
+        Pᵢ₋₁ = zero(T)
+        Pᵢ₋₂ = zero(T)
+
+        Pᵢ = jacobiRecurrenceRelation(Pᵢ₋₁, Pᵢ₋₂, i, triangle.params.a, 2*j+one(T) + triangle.params.b + triangle.params.c, xtilde)
+        Pᵢ₋₂ = Pᵢ₋₁
+        Pᵢ₋₁ = Pᵢ
+
+        Pⱼ = jacobiRecurrenceRelation(Pⱼ₋₁, Pⱼ₋₂, j, triangle.params.b, triangle.params.c, ytilde)
+        Pⱼ₋₂ = Pⱼ₋₁
+        Pⱼ₋₁ = Pⱼ
+
+        totelm=Pᵢ * Pⱼ * (1-x₀)^j
+        result = muladd( totelm,coeff_i,result)
+
+        return (result,order+1,i,j, Pᵢ₋₁ ,Pᵢ₋₂,Pⱼ₋₁,Pⱼ₋₂)
+
+    else
+        i += 1
+
+        Pᵢ = jacobiRecurrenceRelation(Pᵢ₋₁, Pᵢ₋₂, i, triangle.params.a, 2*j+one(T) + triangle.params.b + triangle.params.c, xtilde)
+        Pᵢ₋₂ = Pᵢ₋₁
+        Pᵢ₋₁ = Pᵢ
+        
+        Pⱼ= Pⱼ₋₁
+
+        totelm=Pᵢ * Pⱼ * (1-x₀)^j
+        result = muladd( totelm,coeff_i,result)
+
+        return (result,order+1,i,j, Pᵢ₋₁ ,Pᵢ₋₂,Pⱼ₋₁,Pⱼ₋₂)
+
+
+    end
+
+
+end

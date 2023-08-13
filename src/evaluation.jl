@@ -34,3 +34,58 @@ end
 
     return result
 end
+
+
+
+
+
+
+
+@inline function evaluate(elm::T,coeff::A,x) where {T<:Union{LineElement,TriangleElement,DiskElement},A<:AbstractVector}
+    
+    state=recursive_evaluate(elm, first(coeff),x)
+   
+
+    while state[2]+1 <=length(coeff)
+        index=state[2] +1
+        state =recursive_evaluate(elm, coeff[index],x;state=state)
+    end
+
+    return first(state)
+    
+end
+
+
+@inline function evaluate(line::T,coeff::A,x::Tuple{S}) where {T<:Union{LineElement,TriangleElement,DiskElement},A<:AbstractVector,S}
+    evaluate(line,coeff,first(x))
+end
+
+
+@inline function evaluate(elem::A,coeff,x) where {A}
+    
+    #we pick the first that is the outer loop 
+    x_first =first(x)
+    x_rest=Base.tail(x)
+    
+    nfirst=first(size(coeff))
+    n_rest =Base.tail(size(coeff))
+   
+    #we create a tuple of ranges to properly handly the view  
+    restranges=ntuple(i-> 1:n_rest[i],length(n_rest))
+    
+    #we do the first step 
+    c=evaluate(elem.last,view(coeff,1,restranges...),x_rest)
+    state=recursive_evaluate(elem.first,c,x_first)
+    index=1
+    
+    #we do the the other step 
+    while state[2]+1 <=nfirst
+        index=index +1
+        c=evaluate(elem.last,view(coeff,index,restranges...),x_rest)
+        state =recursive_evaluate(elem.first, c,x_first;state=state)
+    end
+
+    return first(state)
+
+
+end 

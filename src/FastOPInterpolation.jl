@@ -7,6 +7,7 @@ export updateInterpolation!, generateTensorNodes!, generateTensorNodes
 export LineJacobiParameter, LineGeometry, LineElement
 export DiskRecurrenceParameter, DiskGeometry, DiskElement
 export TriangleJacobiParameter, TriangleGeometry, TriangleElement
+export evaluate
 
 
 using StaticArrays

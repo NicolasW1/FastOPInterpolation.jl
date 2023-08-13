@@ -40,13 +40,11 @@ f1([0.23, 0.15, 0.31]) - intP2([0.23, 0.15, 0.31])
 
 #### Test new things 
 
-line1 = LineElement(51, LineGeometry(-1.5,3.5), LineJacobiParameter(1.2,3.5))
+line1 = LineElement(51, LineGeometry(-1.,1.), LineJacobiParameter(1.2,3.5))
 intP1, t_nodes1 = InterpolationElement((line1,));
 intP1
 
 t_nodes1
-
-t_nodes1[2]
 
 f_nodes1 = generateTensorNodes(t_nodes1)
 
@@ -112,27 +110,14 @@ end
 end
 
 
-@inline function evaluate(line::T,coeff::A,x::Tuple{S}) where {T<:Union{LineElement,TriangleElement},A<:AbstractVector,S}
+@inline function evaluate(line::T,coeff::A,x::Tuple{S}) where {T<:Union{LineElement,TriangleElement,DiskElement},A<:AbstractVector,S}
     evaluate(line,coeff,first(x))
 end
 
+coeff=[1. for i in 1:10 ]
 
-line1 = LineElement(101, LineGeometry(-1.,1.), LineJacobiParameter(1.5,1.5))
-intP1, t_nodes1 = InterpolationElement((line1,));
-f1(x) =   x[1]^ 1 
-values=[f1(i) for i in first(t_nodes1) ]
 
-updateInterpolation!(intP1, vec(values))
-fieldnames(typeof(intP1))
-
-vec(values)
-
-intP1.modes
-res=evaluate.(intP1.elements,(intP1.modes,),vec(values))
-
-plot(first(t_nodes1)[:],vec(values))
-plot!(first(t_nodes1)[:],res)
-
+evaluate(line1,coeff,(1,))
 
 using BenchmarkTools
 
@@ -212,7 +197,7 @@ evaluate(composite,coeff3,(1,1,1))
 
 ###### now the triangle
 
-@inline function recursive_evaluate(line::TriangleElement{T,N},
+@inline function recursive_evaluate(triangle::TriangleElement{T,N},
     coeff_i::A,
     x::Tuple{S,S}
     ;
@@ -242,11 +227,11 @@ evaluate(composite,coeff3,(1,1,1))
         Pᵢ₋₁ = zero(T)
         Pᵢ₋₂ = zero(T)
 
-        Pᵢ = jacobiRecurrenceRelation(Pᵢ₋₁, Pᵢ₋₂, i, line.params.a, 2*j+one(T) + line.params.b + line.params.c, xtilde)
+        Pᵢ = jacobiRecurrenceRelation(Pᵢ₋₁, Pᵢ₋₂, i, triangle.params.a, 2*j+one(T) + triangle.params.b + triangle.params.c, xtilde)
         Pᵢ₋₂ = Pᵢ₋₁
         Pᵢ₋₁ = Pᵢ
 
-        Pⱼ = jacobiRecurrenceRelation(Pⱼ₋₁, Pⱼ₋₂, j, line.params.b, line.params.c, ytilde)
+        Pⱼ = jacobiRecurrenceRelation(Pⱼ₋₁, Pⱼ₋₂, j, triangle.params.b, triangle.params.c, ytilde)
         Pⱼ₋₂ = Pⱼ₋₁
         Pⱼ₋₁ = Pⱼ
 
@@ -258,7 +243,7 @@ evaluate(composite,coeff3,(1,1,1))
     else
         i += 1
 
-        Pᵢ = jacobiRecurrenceRelation(Pᵢ₋₁, Pᵢ₋₂, i, line.params.a, 2*j+one(T) + line.params.b + line.params.c, xtilde)
+        Pᵢ = jacobiRecurrenceRelation(Pᵢ₋₁, Pᵢ₋₂, i, triangle.params.a, 2*j+one(T) + triangle.params.b + triangle.params.c, xtilde)
         Pᵢ₋₂ = Pᵢ₋₁
         Pᵢ₋₁ = Pᵢ
         
@@ -276,7 +261,7 @@ evaluate(composite,coeff3,(1,1,1))
 end 
 
 
-triangle1
+
 
 
 evaluate(triangle1,coeff,(0.5,0.5))
@@ -309,3 +294,70 @@ evaluate(composite,coeff3,((0.5,0.5),0.5,(0.5,0.5)))
 @code_warntype evaluate(composite,coeff3,((0.5,0.5),0.5,(0.5,0.5)))
 
 @benchmark evaluate($composite,$coeff3,((0.5,0.5),0.5,(0.5,0.5)))
+
+
+
+
+
+
+@inline function recursive_evaluate(disk::DiskElement{T,N},
+    coeff_i::A,
+    x::Tuple{S,S}
+    ;
+    state= 
+    ( zero(promote_type(S,T,A)) ,
+    0, N + 1, -1 , 
+    zero(promote_type(S,T,A)) ,
+    zero( promote_type(S,T,A) ),
+    zero(promote_type(S,T,A)) ,
+    zero( promote_type(S,T,A) ) 
+    ) 
+    )    where {S<:Number,T,N,A<:Number}
+    
+    x₀, y₀ = x
+    ytilde = 1-abs(x₀) ≈ zero(T) ? zero(T) : (1-x₀^2)^(-one(T)/2) * y₀
+    
+    result=state[1]
+    order=state[2]
+    
+    (result,order,i,j, Pᵢ₋₁ ,Pᵢ₋₂,Pⱼ₋₁,Pⱼ₋₂) =state 
+
+    if i + j == N
+        j += 1
+        i = zero(N)
+
+        Pᵢ₋₁ = zero(T)
+        Pᵢ₋₂ = zero(T)
+
+        Pᵢ = jacobiRecurrenceRelation(Pᵢ₋₁, Pᵢ₋₂, i, a + j + one(T)/2, disk.params.a + disk.buffer.j + one(T)/2, x₀)
+        Pᵢ₋₂ = Pᵢ₋₁
+        Pᵢ₋₁ = Pᵢ
+
+        Pⱼ = jacobiRecurrenceRelation(Pⱼ₋₁, Pⱼ₋₂, j, disk.params.a, disk.params.a, ytilde)
+        Pⱼ₋₂ = Pⱼ₋₁
+        Pⱼ₋₁ = Pⱼ
+
+        totelm=Pᵢ * Pⱼ * (1-x₀^2)^(j / 2)
+        result = muladd( totelm,coeff_i,result)
+
+        return (result,order+1,i,j, Pᵢ₋₁ ,Pᵢ₋₂,Pⱼ₋₁,Pⱼ₋₂)
+
+    else
+        i += 1
+
+        Pᵢ = jacobiRecurrenceRelation(Pᵢ₋₁, Pᵢ₋₂, i, a + j + one(T)/2, disk.params.a + disk.buffer.j + one(T)/2, x₀)
+        Pᵢ₋₂ = Pᵢ₋₁
+        Pᵢ₋₁ = Pᵢ
+        
+        Pⱼ= Pⱼ₋₁
+
+        totelm=Pᵢ * Pⱼ * (1-x₀^2)^(j / 2)
+        result = muladd( totelm,coeff_i,result)
+
+        return (result,order+1,i,j, Pᵢ₋₁ ,Pᵢ₋₂,Pⱼ₋₁,Pⱼ₋₂)
+
+
+    end
+
+
+end 
